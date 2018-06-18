@@ -1,10 +1,15 @@
-package br.com.industrial.aulacrud;
+package br.com.industrial.aulacrud.servlets;
 
+import br.com.industrial.aulacrud.bean.Aluno;
+import br.com.industrial.aulacrud.dao.AlunoDAO;
+import br.com.industrial.aulacrud.dao.impl.AlunoDAOImpl;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -13,34 +18,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "Teste", urlPatterns = {"/Teste"})
-public class Teste extends HttpServlet {
+@WebServlet(name = "ListaAlunoServlet", urlPatterns = {"/ListaAlunoServlet"})
+public class ListaAlunosServlet extends HttpServlet {
     
-    public String message;
-
+    private String nomePesquisado;
+    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        try {
-            Class.forName("com.mysql.jdbc.Driver");
-            Connection con = 
-               DriverManager.getConnection("jdbc:mysql://localhost/mysql?useTimezone=true&serverTimezone=UTC","root","");
-            if(con != null){
-                message = "STATUS--->Conectado com sucesso!";
-                con.close();
-            } else{
-                message = "STATUS--->Não foi possível realizar a conexão";
-            }
-            
-        } catch (ClassNotFoundException ex) {
-            message = "ERRO Driver---> " + ex.getMessage();
-        } catch (SQLException ex) {
-            message = "ERRO Connection---> " + ex.getMessage();
-        }
-        
-        request.setAttribute("message", message);
-        request.getRequestDispatcher("/view/teste.jsp").forward(request, response);
-               
+
+        nomePesquisado = request.getParameter("nome");
+
+        AlunoDAO alunoDAO = new AlunoDAOImpl();
+        request.setAttribute("alunos", alunoDAO.get(nomePesquisado));
+        request.setAttribute("nomePesquisado", nomePesquisado);
+
+        request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
